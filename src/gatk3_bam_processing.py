@@ -222,7 +222,7 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
 
     ir_input = bam_filenames[0]
     ir_output = "tmp/realignment/realigned.bam"
-    
+
     ir_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
     ir_cmd += "-T IndelRealigner {0} -R {1} ".format(advanced_ir_options, reference)
     ir_cmd += "-targetIntervals {0} {1} -I {2} -o {3}".format(rtc_output,
