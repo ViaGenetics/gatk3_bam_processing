@@ -113,7 +113,7 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
             index = "0{0}".format(index)
 
         bam_filenames.append("in/bam_files/{0}/{1}".format(index,
-            dxpy.DXFile(bam_file).describe()['name']))
+            dxpy.DXFile(bam_file).describe()["name"]))
 
     indel_vcf_files = []
     known_parameter = ""
@@ -121,21 +121,21 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     if indel_vcf:
         for index, file_object in enumerate(indel_vcf):
             filename = "in/indel_vcf/{0}/{1}".format(index,
-                dxpy.DXFile(file_object).describe()['name'])
+                dxpy.DXFile(file_object).describe()["name"])
             indel_vcf_files.append(filename)
             known_parameter += "-known {0} ".format(filename)
             knownsites_parameter += "-knownSites {0} ".format(filename)
 
     dbsnp_parameter = ""
     if dbsnp:
-        dbsnp = "in/dbsnp/{0}".format(dxpy.DXFile(dbsnp).describe()['name'])
+        dbsnp = "in/dbsnp/{0}".format(dxpy.DXFile(dbsnp).describe()["name"])
         dbsnp_parameter = "--dbsnp {0} ".format(dbsnp)
         knownsites_parameter += "-knownSites {0} ".format(dbsnp)
 
     regions_parameter = ""
     if regions_file:
         regions_file = "in/regions_file/{0}".format(
-            dxpy.DXFile(regions_file).describe()['name'])
+            dxpy.DXFile(regions_file).describe()["name"])
         regions_parameter = "-L {0} ".format(regions_file)
 
         if padding:
