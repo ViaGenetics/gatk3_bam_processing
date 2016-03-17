@@ -99,12 +99,48 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     # The following line(s) initialize your data object inputs on the platform
     # into dxpy.DXDataObject instances that you can start using immediately.
 
-    bam_files = [dxpy.DXFile(item) for item in bam_files]
-    reference = dxpy.DXFile(reference)
-    if indel_vcf is not None:
-        indel_vcf = [dxpy.DXFile(item) for item in indel_vcf]
-    if dbsnp is not None:
-        dbsnp = dxpy.DXFile(dbsnp)
+    reference_filename = "in/reference/{0}".format(
+        dxpy.DXFile(reference).describe()["name"])
+    reference_index_filename = "in/reference_index/{0}".format(
+        dxpy.DXFile(reference_index).describe()["name"])
+
+    bam_filenames = []
+    for index, bam_file in enumerate(bam_files):
+
+        # DNAnexus has this funky behavior when you have > 9 files, it creates
+        # a folder in/parameter/08/file - this resolves that issue
+        if len(bam_files) > 9 and index < 10:
+            index = "0{0}".format(index)
+
+        bam_filenames.append("in/bam_files/{0}/{1}".format(index,
+            dxpy.DXFile(bam_file).describe()['name']))
+
+    indel_vcf_files = []
+    known_parameter = ""
+    knownsites_parameter = ""
+    if indel_vcf:
+        for index, file_object in enumerate(indel_vcf):
+            filename = "in/indel_vcf/{0}/{1}".format(index,
+                dxpy.DXFile(file_object).describe()['name'])
+            indel_vcf_files.append(filename)
+            known_parameter += "-known {0} ".format(filename)
+            knownsites_parameter += "-knownSites {0} ".format(filename)
+
+    dbsnp_parameter = ""
+    if dbsnp:
+        dbsnp = "in/dbsnp/{0}".format(dxpy.DXFile(dbsnp).describe()['name'])
+        dbsnp_parameter = "--dbsnp {0} ".format(dbsnp)
+        knownsites_parameter += "-knownSites {0} ".format(dbsnp)
+
+    regions_parameter = ""
+    if regions_file:
+        regions_file = "in/regions_file/{0}".format(
+            dxpy.DXFile(regions_file).describe()['name'])
+        regions_parameter = "-L {0} ".format(regions_file)
+
+        if padding:
+            regions_parameter += "-ip {0} ".format(padding)
+
 
     # The following line(s) download your file inputs to the local file system
     # using variable names for the filenames.
