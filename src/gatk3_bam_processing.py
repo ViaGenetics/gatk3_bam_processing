@@ -158,6 +158,8 @@ def main(bam_files, sampleId, padding, reference, loglevel,
 
     unzip_reference_genome_cmd = "gzip -dc {0} > genome/genome.fa".format(
         reference_filename)
+    unzip_reference_genome = dx_exec.execute_command(unzip_reference_genome_cmd)
+    dx_exec.check_execution_syscode(unzip_reference_genome, "Unzip reference genome")
     reference_filename = "genome/genome.fa"
 
     reference_faidx_cmd = "samtools faidx {0}".format(reference_filename)
