@@ -180,6 +180,23 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
             indel_vcf_tabix = dx_exec.execute_command(indel_vcf_tabix_cmd)
             dx_exec.check_execution_syscode(indel_vcf_tabix, "Tabix of {0}".format(vcf_file))
 
+    # Merge BAM files if there are more than one
+    if len(bam_filenames) > 1:
+        merged_bam = "tmp/preprocessing/merged.bam"
+        merge_bam_cmd = "sambamba merge -t {0} {1} {2}".format(
+            cpus, merged_bam, " ".join(bam_filenames))
+        merge_bam = dx_exec.execute_command(merge_bam_cmd)
+        dx_exec.check_execution_syscode(merge_bam)
+
+        sorted_bam = "tmp/preprocessing/sorted.bam"
+        sort_bam_cmd = "sambamba sort -t {0} {1} -o {2}".format(
+            cpus, merged_bam, sorted_bam)
+        sort_bam = dx_exec.execute_command(sort_bam_cmd)
+        dx_exec.check_execution_syscode(sort_bam)
+
+        # Rename bam_files to the new sorted BAM file. This is what will be used for GATK processing
+        bam_filenames = [sorted_bam]
+
     # The following line(s) use the Python bindings to upload your file outputs
     # after you have created them on the local file system.  It assumes that you
     # have used the output field name for the filename for each output, but you
