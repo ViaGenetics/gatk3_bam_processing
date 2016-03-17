@@ -56,6 +56,20 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
         actually taken care of by dxpy client libraries.
     """
 
+    # Set up string variables that are not required
+
+    if not advanced_rtc_options:
+        advanced_rtc_options = ""
+
+    if not advanced_ir_options:
+        advanced_ir_options = ""
+
+    if not advanced_br_options:
+        advanced_br_options = ""
+
+    if not advanced_pr_options:
+        advanced_pr_options = ""
+
     # The following line(s) initialize your data object inputs on the platform
     # into dxpy.DXDataObject instances that you can start using immediately.
 
