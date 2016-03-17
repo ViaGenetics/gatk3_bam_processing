@@ -1,0 +1,97 @@
+{
+  "name": "gatk3_bam_processing",
+  "title": "GATK3 best practices BAM preprocessing",
+  "summary": "Implements the GATK 3.x best practices processing of BAM files. It receives MarkDuplicates BAM files as input, and refines them (by realigning, and recalibrating them)",
+  "dxapi": "1.0.0",
+  "version": "0.0.1",
+  "categories": [
+    "Read Manipulation"
+  ],
+  "inputSpec": [
+    {
+      "name": "bam_files",
+      "label": "BAM files (Must be sorted and dedupped)",
+      "class": "array:file",
+      "optional": false
+    },
+    {
+      "name": "sampleId",
+      "label": "SampleId of sample being processed",
+      "class": "string",
+      "optional": false
+    },
+    {
+      "name": "padding",
+      "label": "Extra padding to add to targets",
+      "class": "int",
+      "optional": true,
+      "default": 100
+    },
+    {
+      "name": "reference",
+      "label": "Reference genome (gzipped)",
+      "class": "file",
+      "optional": false
+    },
+    {
+      "name": "indel_vcf",
+      "label": "VCF files with established in/del variant calls",
+      "class": "array:file",
+      "optional": true
+    },
+    {
+      "name": "dbsnp",
+      "label": "dbSNP VCF",
+      "class": "file",
+      "optional": true
+    },
+    {
+      "name": "advanced_rtc_options",
+      "label": "Advanced command line options (for RealignerTargetCreator)",
+      "class": "string",
+      "optional": true
+    },
+    {
+      "name": "advanced_ir_options",
+      "label": "Advanced command line options (for IndelRealigner)",
+      "class": "string",
+      "optional": true
+    },
+    {
+      "name": "advanced_br_options",
+      "label": "Advanced command line options (for BaseRecalibrator)",
+      "class": "string",
+      "optional": true
+    },
+    {
+      "name": "advanced_pr_options",
+      "label": "Advanced command line options (for PrintReads)",
+      "class": "string",
+      "optional": true
+    },
+    {
+      "name": "loglevel",
+      "label": "Logging Level",
+      "class": "string",
+      "optional": true,
+      "default": "INFO"
+    }
+  ],
+  "outputSpec": [
+    {
+      "name": "output_recalibrated_bam",
+      "label": "Recalibrated BAM file",
+      "class": "file"
+    },
+    {
+      "name": "output_recalibrated_cram",
+      "label": "Recalibrated CRAM file",
+      "class": "file"
+    }
+  ],
+  "runSpec": {
+    "interpreter": "python2.7",
+    "file": "src/gatk3_bam_processing.py"
+  },
+  "authorizedUsers": []
+}
