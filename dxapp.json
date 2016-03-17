@@ -179,6 +179,20 @@
       "default": "--disable_indel_quals"
     },
     {
+      "name": "downsample",
+      "label": "Downsample BAMs for BaseRecalibrator?",
+      "class": "boolean",
+      "optional": false,
+      "default": true
+    },
+    {
+      "name": "downsample_fraction",
+      "label": "Downsample fraction (--dfrac)",
+      "class": "float",
+      "optional": true,
+      "default": 0.20
+    },
+    {
       "name": "loglevel",
       "label": "Logging Level",
       "class": "string",
