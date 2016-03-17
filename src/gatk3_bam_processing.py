@@ -149,7 +149,23 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     download_inputs = dx_exec.execute_command(dx_download_inputs_cmd)
     dx_exec.check_execution_syscode(download_inputs, "Download input files")
 
-    # Fill in your application code here.
+    # The following line(s) are the body of the applet that
+    # executes the bioinformatics processes
+
+    # Prepare refernce genome for GATK
+
+    unzip_reference_genome_cmd = "gzip -dc {0} > genome/genome.fa".format(
+        reference_filename)
+    reference_filename = "genome/genome.fa"
+
+    reference_faidx_cmd = "samtools faidx {0}".format(reference_filename)
+    reference_faidx = dx_exec.execute_command(reference_faidx_cmd)
+    dx_exec.check_execution_syscode(reference_faidx, "Reference samtools faidx")
+
+    reference_dict = "genome/genome.dict"
+    reference_dict_cmd = "samtools dict {0} > {1}".format(reference_filename, reference_dict)
+    reference_dict = dx_exec.execute_command(reference_dict_cmd)
+    dx_exec.check_execution_syscode(reference_dict, "Reference samtools dict")
 
     # The following line(s) use the Python bindings to upload your file outputs
     # after you have created them on the local file system.  It assumes that you
