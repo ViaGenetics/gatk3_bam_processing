@@ -209,7 +209,7 @@ def main(bam_files, sampleId, padding, reference, loglevel,
     rtc_output = "tmp/realignment/realign.intervals"
 
     rtc_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
-    rtc_cmd += "-T RealignerTargetCreator {0} -nt {2} ".format(
+    rtc_cmd += "-T RealignerTargetCreator {0} -nt {1} ".format(
         advanced_rtc_options, cpus)
     rtc_cmd += " -R {0} {1} {2} -I {3} -o {4}".format(reference_filename,
         known_parameter, regions_parameter, rtc_input, rtc_output)
@@ -259,8 +259,8 @@ def main(bam_files, sampleId, padding, reference, loglevel,
     br_output = "tmp/recalibration/recalibration.grp"
 
     br_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
-    br_cmd += "-T BaseRecalibrator {1} -nct {2} ".format(advanced_br_options, cpus)
-    br_cmd += "-R {3} {4} {5} -I {6} -o {7}".format(reference_filename,
+    br_cmd += "-T BaseRecalibrator {0} -nct {1} ".format(advanced_br_options, cpus)
+    br_cmd += "-R {0} {1} {2} -I {3} -o {4}".format(reference_filename,
         knownsites_parameter, regions_parameter, br_input, br_output)
 
     gatk_br = dx_exec.execute_command(br_cmd)
@@ -272,8 +272,8 @@ def main(bam_files, sampleId, padding, reference, loglevel,
     pr_output = "out/output_recalibrated_bam/{0}.recalibrated.bam".format(sampleId)
 
     pr_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
-    pr_cmd += "-T PrintReads {1} -R {2} ".format(advanced_pr_options, reference_filename)
-    pr_cmd += "-BQSR {3} -I {4} -o {5}".format(br_output, pr_input, pr_output)
+    pr_cmd += "-T PrintReads {0} -R {1} ".format(advanced_pr_options, reference_filename)
+    pr_cmd += "-BQSR {0} -I {1} -o {2}".format(br_output, pr_input, pr_output)
 
     gatk_pr = dx_exec.execute_command(pr_cmd)
     dx_exec.check_execution_syscode(gatk_pr, "GATK Apply BQSR")
