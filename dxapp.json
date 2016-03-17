@@ -183,7 +183,7 @@
       "label": "Downsample BAMs for BaseRecalibrator?",
       "class": "boolean",
       "optional": false,
-      "default": true
+      "default": false
     },
     {
       "name": "downsample_fraction",
