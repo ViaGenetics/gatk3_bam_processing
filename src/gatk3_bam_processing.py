@@ -77,6 +77,25 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     max_ram = dx_resources.max_memory(0.85)
     logger.info("# of CPUs:{0}\nMax RAM:{1}".format(cpus, max_ram))
 
+    temp_directories = [
+        "genome/",
+        "out/output_recalibrated_bam/",
+        "out/output_recalibrated_cram/,
+        "tmp/preprocessing/",
+        "tmp/realignment/",
+        "tmp/recalibration/"
+    ]
+
+    for temp_directory in temp_directories:
+        create_dir = dx_exec.execute_command("mkdir -p {0}".format(
+            temp_directory))
+        dx_exec.check_execution_syscode(create_dir, "Created: {0}".format(
+            temp_directory))
+        chmod_dir = dx_exec.execute_command("chmod 777 -R {0}".format(
+            temp_directory))
+        dx_exec.check_execution_syscode(chmod_dir, "Modified: {0}".format(
+            temp_directory))
+
     # The following line(s) initialize your data object inputs on the platform
     # into dxpy.DXDataObject instances that you can start using immediately.
 
