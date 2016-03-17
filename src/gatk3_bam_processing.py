@@ -32,8 +32,10 @@ except ImportError:
     sys.exit(1)
 
 
-@dxpy.entry_point('main')
-def main(bam_files, sampleId, padding, reference, loglevel, indel_vcf=None, dbsnp=None, advanced_rtc_options=None, advanced_ir_options=None, advanced_br_options=None, advanced_pr_options=None):
+@dxpy.entry_point("main")
+def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
+    indel_vcf=None, dbsnp=None, advanced_rtc_options=None,
+    advanced_ir_options=None, advanced_br_options=None, advanced_pr_options=None):
 
     # The following line(s) initialize your data object inputs on the platform
     # into dxpy.DXDataObject instances that you can start using immediately.
