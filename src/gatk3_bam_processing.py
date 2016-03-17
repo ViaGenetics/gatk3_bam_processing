@@ -167,6 +167,19 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     reference_dict = dx_exec.execute_command(reference_dict_cmd)
     dx_exec.check_execution_syscode(reference_dict, "Reference samtools dict")
 
+    # Index VCFs for GATK using tabix
+
+    if dbsnp:
+        dbsnp_tabix_cmd = "tabix -p vcf {0}".format(dbsnp)
+        dbsnp_tabix = dx_exec.execute_command(dbsnp_tabix_cmd)
+        dx_exec.check_execution_syscode(dbsnp_tabix, "Tabix of dbSNP VCF")
+
+    if indel_vcf:
+        for vcf_file in indel_vcf_files:
+            indel_vcf_tabix_cmd = "tabix -p vcf {0}".format(vcf_file)
+            indel_vcf_tabix = dx_exec.execute_command(indel_vcf_tabix_cmd)
+            dx_exec.check_execution_syscode(indel_vcf_tabix, "Tabix of {0}".format(vcf_file))
+
     # The following line(s) use the Python bindings to upload your file outputs
     # after you have created them on the local file system.  It assumes that you
     # have used the output field name for the filename for each output, but you
