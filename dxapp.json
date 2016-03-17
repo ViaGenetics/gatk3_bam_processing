@@ -212,9 +212,9 @@
         "name": "tabix"
       },
       {
-        "name": "dx_applet_helper",
+        "name": "dx_applet_utilities",
         "package_manager": "git",
-        "url": "https://github.com/MikeGonzalez2015/dx_applet_helper.git",
+        "url": "https://github.com/ViaGenetics/dx_applet_utilities.git",
         "tag": "master",
         "destdir": "~/"
      }
