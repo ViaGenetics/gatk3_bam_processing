@@ -37,6 +37,25 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     indel_vcf=None, dbsnp=None, advanced_rtc_options=None,
     advanced_ir_options=None, advanced_br_options=None, advanced_pr_options=None):
 
+    """This is a dx applet that runs on the DNAnexus platform.
+
+    :param: `bam_files`:
+    :param: `sampleId`:
+    :param: `padding`:
+    :param: `reference`:
+    :param: `loglevel`:
+    :param: `regions_file`:
+    :param: `indel_vcf`:
+    :param: `dbsnp`:
+    :param: `loglevel`:
+    :param: `advanced_rtc_options`:
+    :param: `advanced_ir_options`:
+    :param: `advanced_br_options`:
+    :param: `advanced_pr_options`:
+    :returns: This will return an dx object with output generated. This is
+        actually taken care of by dxpy client libraries.
+    """
+
     # The following line(s) initialize your data object inputs on the platform
     # into dxpy.DXDataObject instances that you can start using immediately.
 
