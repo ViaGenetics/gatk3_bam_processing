@@ -258,6 +258,17 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     gatk_pr = dx_exec.execute_command(pr_cmd)
     dx_exec.check_execution_syscode(gatk_pr)
 
+    # Convert recalibrated BAM to CRAM for archiving (Variant callers will
+    # support variant calling from CRAM soon!)
+
+    cram_file = "out/output_recalibrated_cram/{0}.recalibrated.cram".format(
+        sampleId)
+    cram_cmd = "sambamba view -f cram -t {0} -T {1} {2} -o {3}".format(
+        cpus, reference, pr_output, cram_file)
+
+    cram = dx_exec.execute_command(cram_cmd)
+    dx_exec.check_execution_syscode(cram)
+
     # The following line(s) use the Python bindings to upload your file outputs
     # after you have created them on the local file system.  It assumes that you
     # have used the output field name for the filename for each output, but you
