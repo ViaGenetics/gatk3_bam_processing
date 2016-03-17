@@ -197,6 +197,40 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
         # Rename bam_files to the new sorted BAM file. This is what will be used for GATK processing
         bam_filenames = [sorted_bam]
 
+    # GATK in/del realignment phase
+
+    # 1. RealignerTargetCreator
+
+    rtc_input = bam_filenames[0]
+    rtc_output = "tmp/realignment/realign.intervals"
+
+    rtc_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
+    rtc_cmd += "-T RealignerTargetCreator {0} -nt {2} ".format(
+        advanced_rtc_options, cpus)
+    rtc_cmd += " -R {0} {1} {2} -I {3} -o {4}".format(
+        reference, known_parameter, regions_parameter, rtc_input, rtc_output)
+
+    # Need to index BAM file for GATK
+    idx_rtc_input_cmd = "sambamba index -p -t {0} {1}".format(cpus, rtc_input)
+    idx_rtc_input = dx_exec.execute_command(idx_rtc_input_cmd)
+    dx_exec.check_execution_syscode(idx_rtc_input)
+
+    gatk_rtc = dx_exec.execute_command(rtc_cmd)
+    dx_exec.check_execution_syscode(gatk_rtc)
+
+    # 2. IndelRealigner
+
+    ir_input = bam_filenames[0]
+    ir_output = "tmp/realignment/realigned.bam"
+    
+    ir_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
+    ir_cmd += "-T IndelRealigner {0} -R {1} ".format(advanced_ir_options, reference)
+    ir_cmd += "-targetIntervals {0} {1} -I {2} -o {3}".format(rtc_output,
+        known_parameter, ir_input, ir_output)
+
+    gatk_ir = dx_exec.execute_command(ir_cmd)
+    dx_exec.check_execution_syscode(gatk_ir)
+
     # The following line(s) use the Python bindings to upload your file outputs
     # after you have created them on the local file system.  It assumes that you
     # have used the output field name for the filename for each output, but you
