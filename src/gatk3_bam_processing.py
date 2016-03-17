@@ -269,6 +269,17 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     cram = dx_exec.execute_command(cram_cmd)
     dx_exec.check_execution_syscode(cram)
 
+    # Remove index files - no need to store these for now :)
+
+    rm_bai_files_cmd = "rm -rf out/output_recalibrated_bam/*bai"
+    rm_cai_files_cmd = "rm -rf out/output_recalibrated_cram/*cai"
+
+    rm_bai_files = dx_exec.execute_command(rm_bai_files_cmd)
+    dx_exec.check_execution_syscode(rm_bai_files)
+
+    rm_cai_files = dx_exec.execute_command(rm_cai_files_cmd)
+    dx_exec.check_execution_syscode(rm_cai_files)
+
     # The following line(s) use the Python bindings to upload your file outputs
     # after you have created them on the local file system.  It assumes that you
     # have used the output field name for the filename for each output, but you
