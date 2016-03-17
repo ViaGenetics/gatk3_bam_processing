@@ -80,7 +80,7 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     temp_directories = [
         "genome/",
         "out/output_recalibrated_bam/",
-        "out/output_recalibrated_cram/,
+        "out/output_recalibrated_cram/",
         "tmp/preprocessing/",
         "tmp/realignment/",
         "tmp/recalibration/"
