@@ -231,6 +231,33 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     gatk_ir = dx_exec.execute_command(ir_cmd)
     dx_exec.check_execution_syscode(gatk_ir)
 
+    # GATK base quality recalibration phase
+
+    # 1. BaseRecalibrator
+
+    br_input = ir_output
+    br_output = "tmp/recalibration/recalibration.grp"
+
+    br_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
+    br_cmd += "-T BaseRecalibrator {1} -nct {2} ".format(advanced_br_options, cpus)
+    br_cmd += "-R {3} {4} {5} -I {6} -o {7}".format(reference,
+        knownsites_parameter, regions_parameter, br_input, br_output)
+
+    gatk_br = dx_exec.execute_command(br_cmd)
+    dx_exec.check_execution_syscode(gatk_br)
+
+    # 2. PrintReads
+
+    pr_input = ir_output
+    pr_output = "out/output_recalibrated_bam/{0}.recalibrated.bam".format(sampleId)
+
+    pr_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
+    pr_cmd += "-T PrintReads {1} -R {2} ".format(advanced_pr_options, reference)
+    pr_cmd += "-BQSR {3} -I {4} -o {5}".format(br_output, pr_input, pr_output)
+
+    gatk_pr = dx_exec.execute_command(pr_cmd)
+    dx_exec.check_execution_syscode(gatk_pr)
+
     # The following line(s) use the Python bindings to upload your file outputs
     # after you have created them on the local file system.  It assumes that you
     # have used the output field name for the filename for each output, but you
