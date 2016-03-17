@@ -190,7 +190,7 @@ def main(bam_files, sampleId, padding, reference, loglevel,
         merge_bam_cmd = "sambamba merge -t {0} {1} {2}".format(
             cpus, merged_bam, " ".join(bam_filenames))
         merge_bam = dx_exec.execute_command(merge_bam_cmd)
-        dx_exec.check_execution_syscode(merge_bam)
+        dx_exec.check_execution_syscode(merge_bam, "Merge BAM")
 
         sorted_bam = "tmp/preprocessing/sorted.bam"
         sort_bam_cmd = "sambamba sort -t {0} {1} -o {2}".format(
