@@ -5,13 +5,15 @@
   "dxapi": "1.0.0",
   "version": "0.0.1",
   "categories": [
-    "Read Manipulation"
+    "Read Manipulation",
+    "Pipelines"
   ],
   "inputSpec": [
     {
       "name": "bam_files",
       "label": "BAM files (Must be sorted and dedupped)",
       "class": "array:file",
+      "patterns": ["*.bam"],
       "optional": false
     },
     {
@@ -19,6 +21,24 @@
       "label": "SampleId of sample being processed",
       "class": "string",
       "optional": false
+    },
+    {
+      "name": "regions_file",
+      "label": "File with exome regions",
+      "class": "file",
+      "patterns": ["*.bed", "*.interval_list"],
+      "optional": true,
+      "suggestions": [
+        {
+          "name": "exome_calling_regions.v1.interval_list",
+          "value": {
+            "$dnanexus_link": {
+              "project": "project-BY1v2Xj0VKgFyYv3zk4Bq125",
+              "id": "file-BY3K0B00VKg9Kg95bbykx1KQ"
+            }
+          }
+        }
+      ]
     },
     {
       "name": "padding",
@@ -31,19 +51,107 @@
       "name": "reference",
       "label": "Reference genome (gzipped)",
       "class": "file",
-      "optional": false
+      "patterns": ["*.fa.gz", "*.fasta.gz"],
+      "optional": false,
+      "suggestions": [
+        {
+          "name": "GRCh37 - hs37d5 (1000 Genomes Phase II)",
+          "value": {
+            "$dnanexus_link": {
+              "project": "project-BY1v2Xj0VKgFyYv3zk4Bq125",
+              "id": "file-B6ZY7VG2J35Vfvpkj8y0KZ01"
+            }
+          }
+        },
+        {
+          "name": "ucsc - hg19",
+          "value": {
+            "$dnanexus_link": {
+              "project": "project-BY1v2Xj0VKgFyYv3zk4Bq125",
+              "id": "file-BYG23G80VKg6gz64Y5xQyb2x"
+            }
+          }
+        },
+        {
+          "name": "DNAnexus Reference Genomes",
+          "project": "project-BQpp3Y804Y0xbyG4GJPQ01xv",
+          "path": "/"
+        }
+      ]
     },
     {
       "name": "indel_vcf",
       "label": "VCF files with established in/del variant calls",
+      "help": "Needed for recalibration of BAM files. Ensures higher quality variant calls",
       "class": "array:file",
-      "optional": true
+      "patterns": ["*.vcf", "*.vcf.gz"],
+      "optional": true,
+      "suggestions": [
+        {
+          "name": "GRCh37 - 1000G_phase1",
+          "value": {
+            "$dnanexus_link": {
+              "project": "project-BY1v2Xj0VKgFyYv3zk4Bq125",
+              "id": "file-B5Gx17pxjkfk7KyjK4QQ00pG"
+            }
+          }
+        },
+        {
+          "name": "GRCh37 - Mills_and_1000G_gold_standard indels",
+          "value": {
+            "$dnanexus_link": {
+              "project": "project-BY1v2Xj0VKgFyYv3zk4Bq125",
+              "id": "file-B5Gx10Xxjkfx9xyk78bQ00kp"
+            }
+          }
+        },
+        {
+          "name": "hg19 - 1000G_phase1",
+          "value": {
+            "$dnanexus_link": {
+              "project": "project-BY1v2Xj0VKgFyYv3zk4Bq125",
+              "id": "file-BYG1zY80VKgJ64GF852VJGzv"
+            }
+          }
+        },
+        {
+          "name": "hg19 - Mills_and_1000G_gold_standard indels",
+          "value": {
+            "$dnanexus_link": {
+              "project": "project-BY1v2Xj0VKgFyYv3zk4Bq125",
+              "id": "file-BYG1zp80VKg304kXpxgZ984p"
+            }
+          }
+        }
+      ]
     },
     {
       "name": "dbsnp",
       "label": "dbSNP VCF",
+      "help": "Needed for recalibration of BAM files. Ensures higher quality variant calls",
       "class": "file",
-      "optional": true
+      "patterns": ["*.vcf", "*.vcf.gz"],
+      "optional": true,
+      "suggestions": [
+        {
+          "name": "GRCh37 - dbSNP VCF",
+          "value": {
+            "$dnanexus_link": {
+              "project": "project-BY1v2Xj0VKgFyYv3zk4Bq125",
+              "id": "file-B5Gx01pxjkfzYbVP70bQ018F"
+            }
+          }
+        },
+        {
+          "name": "hg19 - dbSNP VCF",
+          "value": {
+            "$dnanexus_link": {
+              "project": "project-BY1v2Xj0VKgFyYv3zk4Bq125",
+              "id": "file-BYG1zyQ0VKg3JGFxYbxf81GF"
+            }
+          }
+        }
+      ]
     },
     {
       "name": "advanced_rtc_options",
@@ -67,14 +175,16 @@
       "name": "advanced_pr_options",
       "label": "Advanced command line options (for PrintReads)",
       "class": "string",
-      "optional": true
+      "optional": true,
+      "default": "--disable_indel_quals"
     },
     {
       "name": "loglevel",
       "label": "Logging Level",
       "class": "string",
       "optional": true,
-      "default": "INFO"
+      "default": "INFO",
+      "choices": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     }
   ],
   "outputSpec": [
@@ -91,7 +201,47 @@
   ],
   "runSpec": {
     "interpreter": "python2.7",
-    "file": "src/gatk3_bam_processing.py"
+    "file": "src/gatk3_bam_processing.py",
+    "distribution": "Ubuntu",
+    "release": "14.04",
+    "execDepends": [
+      {
+        "name": "openjdk-7-jre-headless"
+      },
+      {
+        "name": "tabix"
+      },
+      {
+        "name": "dx_applet_helper",
+        "package_manager": "git",
+        "url": "https://github.com/MikeGonzalez2015/dx_applet_helper.git",
+        "tag": "master",
+        "destdir": "~/"
+     }
+    ],
+    "systemRequirements":{
+      "main": {
+        "instanceType": "mem1_ssd1_x8"
+      }
+    },
+    "executionPolicy": {
+      "restartOn": {
+        "ExecutionError": 1,
+        "AppInternalError": 1
+      },
+      "maxRestarts": 2
+    },
+    "timeoutPolicy": {
+      "main": {
+        "hours": 4
+      }
+    }
   },
+  "access": {
+    "network": ["*"]
+  },
+  "developers": [
+    "MGonz2015"
+  ],
   "authorizedUsers": []
 }
