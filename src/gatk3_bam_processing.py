@@ -145,14 +145,9 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     # The following line(s) download your file inputs to the local file system
     # using variable names for the filenames.
 
-    dxpy.download_dxfile(reference.get_id(), "reference")
-    if dbsnp is not None:
-        dxpy.download_dxfile(dbsnp.get_id(), "dbsnp")
-    for i, f in enumerate(bam_files):
-        dxpy.download_dxfile(f.get_id(), "bam_files-" + str(i))
-    if indel_vcf is not None:
-        for i, f in enumerate(indel_vcf):
-            dxpy.download_dxfile(f.get_id(), "indel_vcf-" + str(i))
+    dx_download_inputs_cmd = "dx-download-all-inputs --parallel"
+    download_inputs = dx_exec.execute_command(dx_download_inputs_cmd)
+    dx_exec.check_execution_syscode(download_inputs, "Download input files")
 
     # Fill in your application code here.
 
