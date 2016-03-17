@@ -70,6 +70,13 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     if not advanced_pr_options:
         advanced_pr_options = ""
 
+    # Set up execution environment
+
+    logger.setLevel(loglevel)
+    cpus = dx_resources.number_of_cpus(1.0)
+    max_ram = dx_resources.max_memory(0.85)
+    logger.info("# of CPUs:{0}\nMax RAM:{1}".format(cpus, max_ram))
+
     # The following line(s) initialize your data object inputs on the platform
     # into dxpy.DXDataObject instances that you can start using immediately.
 
