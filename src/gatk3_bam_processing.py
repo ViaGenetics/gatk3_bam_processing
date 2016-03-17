@@ -196,7 +196,7 @@ def main(bam_files, sampleId, padding, reference, loglevel,
         sort_bam_cmd = "sambamba sort -t {0} {1} -o {2}".format(
             cpus, merged_bam, sorted_bam)
         sort_bam = dx_exec.execute_command(sort_bam_cmd)
-        dx_exec.check_execution_syscode(sort_bam)
+        dx_exec.check_execution_syscode(sort_bam, "Sort merged BAM")
 
         # Rename bam_files to the new sorted BAM file. This is what will be used for GATK processing
         bam_filenames = [sorted_bam]
@@ -217,10 +217,10 @@ def main(bam_files, sampleId, padding, reference, loglevel,
     # Need to index BAM file for GATK
     idx_rtc_input_cmd = "sambamba index -p -t {0} {1}".format(cpus, rtc_input)
     idx_rtc_input = dx_exec.execute_command(idx_rtc_input_cmd)
-    dx_exec.check_execution_syscode(idx_rtc_input)
+    dx_exec.check_execution_syscode(idx_rtc_input, "Index BAM file")
 
     gatk_rtc = dx_exec.execute_command(rtc_cmd)
-    dx_exec.check_execution_syscode(gatk_rtc)
+    dx_exec.check_execution_syscode(gatk_rtc, "GATK RealignerTargetCreator")
 
     # 2. IndelRealigner
 
@@ -233,7 +233,7 @@ def main(bam_files, sampleId, padding, reference, loglevel,
     ir_cmd += "{0} -I {1} -o {2}".format(known_parameter, ir_input, ir_output)
 
     gatk_ir = dx_exec.execute_command(ir_cmd)
-    dx_exec.check_execution_syscode(gatk_ir)
+    dx_exec.check_execution_syscode(gatk_ir, "GATK IndelRealigner")
 
     # GATK base quality recalibration phase
 
@@ -247,7 +247,7 @@ def main(bam_files, sampleId, padding, reference, loglevel,
         downsample_cmd += "-I {0} -o {1}".format(ir_output, downsample_bam)
 
         gatk_ds = dx_exec.execute_command(downsample_cmd)
-        dx_exec.check_execution_syscode(gatk_ds)
+        dx_exec.check_execution_syscode(gatk_ds, "GATK downsampling")
 
     # 1. BaseRecalibrator
 
@@ -264,7 +264,7 @@ def main(bam_files, sampleId, padding, reference, loglevel,
         knownsites_parameter, regions_parameter, br_input, br_output)
 
     gatk_br = dx_exec.execute_command(br_cmd)
-    dx_exec.check_execution_syscode(gatk_br)
+    dx_exec.check_execution_syscode(gatk_br, "GATK BaseRecalibrator")
 
     # 2. PrintReads
 
@@ -276,7 +276,7 @@ def main(bam_files, sampleId, padding, reference, loglevel,
     pr_cmd += "-BQSR {3} -I {4} -o {5}".format(br_output, pr_input, pr_output)
 
     gatk_pr = dx_exec.execute_command(pr_cmd)
-    dx_exec.check_execution_syscode(gatk_pr)
+    dx_exec.check_execution_syscode(gatk_pr, "GATK Apply BQSR")
 
     # Convert recalibrated BAM to CRAM for archiving (Variant callers will
     # support variant calling from CRAM soon!)
@@ -287,7 +287,7 @@ def main(bam_files, sampleId, padding, reference, loglevel,
         cpus, reference_filename, pr_output, cram_file)
 
     cram = dx_exec.execute_command(cram_cmd)
-    dx_exec.check_execution_syscode(cram)
+    dx_exec.check_execution_syscode(cram, "Convert BAM to CRAM")
 
     # Remove index files - no need to store these for now :)
 
@@ -295,10 +295,10 @@ def main(bam_files, sampleId, padding, reference, loglevel,
     rm_cai_files_cmd = "rm -rf out/output_recalibrated_cram/*cai"
 
     rm_bai_files = dx_exec.execute_command(rm_bai_files_cmd)
-    dx_exec.check_execution_syscode(rm_bai_files)
+    dx_exec.check_execution_syscode(rm_bai_files, "Remove *bai")
 
     rm_cai_files = dx_exec.execute_command(rm_cai_files_cmd)
-    dx_exec.check_execution_syscode(rm_cai_files)
+    dx_exec.check_execution_syscode(rm_cai_files, "Remove *cai")
 
     # The following line(s) use the Python bindings to upload your file outputs
     # after you have created them on the local file system.  It assumes that you
