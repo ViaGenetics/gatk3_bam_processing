@@ -33,9 +33,11 @@ except ImportError:
 
 
 @dxpy.entry_point("main")
-def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
-    indel_vcf=None, dbsnp=None, advanced_rtc_options=None,
-    advanced_ir_options=None, advanced_br_options=None, advanced_pr_options=None):
+def main(bam_files, sampleId, padding, reference, loglevel,
+    downsample, downsample_fraction,
+    regions_file=None, indel_vcf=None, dbsnp=None, advanced_rtc_options=None,
+    advanced_ir_options=None, advanced_br_options=None,
+    advanced_pr_options=None):
 
     """This is a dx applet that runs on the DNAnexus platform.
 
@@ -44,6 +46,8 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     :param: `padding`:
     :param: `reference`:
     :param: `loglevel`:
+    :param: `downsample`:
+    :param: `downsample_fraction`:
     :param: `regions_file`:
     :param: `indel_vcf`:
     :param: `dbsnp`:
@@ -233,9 +237,25 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
 
     # GATK base quality recalibration phase
 
+    # Downsample BAMs if it is set to downsample
+
+    if downsample:
+        downsample_bam = "tmp/realignment/downsample.bam"
+
+        downsample_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
+        downsample_cmd += "-T PrintReads -R {0} ".format(reference)
+        downsample_cmd += "-I {0} -o {1}".format(ir_output, downsample_bam)
+
+        gatk_ds = dx_exec.execute_command(downsample_cmd)
+        dx_exec.check_execution_syscode(gatk_ds)
+
     # 1. BaseRecalibrator
 
-    br_input = ir_output
+    if downsample:
+        br_input = downsample_bam
+    else:
+        br_input = ir_output
+
     br_output = "tmp/recalibration/recalibration.grp"
 
     br_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
