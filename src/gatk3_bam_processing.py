@@ -105,8 +105,6 @@ def main(bam_files, sampleId, padding, reference, loglevel,
 
     reference_filename = "in/reference/{0}".format(
         dxpy.DXFile(reference).describe()["name"])
-    reference_index_filename = "in/reference_index/{0}".format(
-        dxpy.DXFile(reference_index).describe()["name"])
 
     bam_filenames = []
     for index, bam_file in enumerate(bam_files):
@@ -211,8 +209,8 @@ def main(bam_files, sampleId, padding, reference, loglevel,
     rtc_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
     rtc_cmd += "-T RealignerTargetCreator {0} -nt {2} ".format(
         advanced_rtc_options, cpus)
-    rtc_cmd += " -R {0} {1} {2} -I {3} -o {4}".format(
-        reference, known_parameter, regions_parameter, rtc_input, rtc_output)
+    rtc_cmd += " -R {0} {1} {2} -I {3} -o {4}".format(reference_filename,
+        known_parameter, regions_parameter, rtc_input, rtc_output)
 
     # Need to index BAM file for GATK
     idx_rtc_input_cmd = "sambamba index -p -t {0} {1}".format(cpus, rtc_input)
@@ -228,9 +226,9 @@ def main(bam_files, sampleId, padding, reference, loglevel,
     ir_output = "tmp/realignment/realigned.bam"
 
     ir_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
-    ir_cmd += "-T IndelRealigner {0} -R {1} ".format(advanced_ir_options, reference)
-    ir_cmd += "-targetIntervals {0} {1} -I {2} -o {3}".format(rtc_output,
-        known_parameter, ir_input, ir_output)
+    ir_cmd += "-T IndelRealigner {0} ".format(advanced_ir_options)
+    ir_cmd += "-R {0} -targetIntervals {1} ".format(reference_filename, rtc_output)
+    ir_cmd += "{0} -I {1} -o {2}".format(known_parameter, ir_input, ir_output)
 
     gatk_ir = dx_exec.execute_command(ir_cmd)
     dx_exec.check_execution_syscode(gatk_ir)
@@ -243,7 +241,7 @@ def main(bam_files, sampleId, padding, reference, loglevel,
         downsample_bam = "tmp/realignment/downsample.bam"
 
         downsample_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
-        downsample_cmd += "-T PrintReads -R {0} ".format(reference)
+        downsample_cmd += "-T PrintReads -R {0} ".format(reference_filename)
         downsample_cmd += "-I {0} -o {1}".format(ir_output, downsample_bam)
 
         gatk_ds = dx_exec.execute_command(downsample_cmd)
@@ -260,7 +258,7 @@ def main(bam_files, sampleId, padding, reference, loglevel,
 
     br_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
     br_cmd += "-T BaseRecalibrator {1} -nct {2} ".format(advanced_br_options, cpus)
-    br_cmd += "-R {3} {4} {5} -I {6} -o {7}".format(reference,
+    br_cmd += "-R {3} {4} {5} -I {6} -o {7}".format(reference_filename,
         knownsites_parameter, regions_parameter, br_input, br_output)
 
     gatk_br = dx_exec.execute_command(br_cmd)
@@ -272,7 +270,7 @@ def main(bam_files, sampleId, padding, reference, loglevel,
     pr_output = "out/output_recalibrated_bam/{0}.recalibrated.bam".format(sampleId)
 
     pr_cmd = "java -Xmx{0}m -jar /opt/jar/GenomeAnalysisTK.jar ".format(max_ram)
-    pr_cmd += "-T PrintReads {1} -R {2} ".format(advanced_pr_options, reference)
+    pr_cmd += "-T PrintReads {1} -R {2} ".format(advanced_pr_options, reference_filename)
     pr_cmd += "-BQSR {3} -I {4} -o {5}".format(br_output, pr_input, pr_output)
 
     gatk_pr = dx_exec.execute_command(pr_cmd)
@@ -284,7 +282,7 @@ def main(bam_files, sampleId, padding, reference, loglevel,
     cram_file = "out/output_recalibrated_cram/{0}.recalibrated.cram".format(
         sampleId)
     cram_cmd = "sambamba view -f cram -t {0} -T {1} {2} -o {3}".format(
-        cpus, reference, pr_output, cram_file)
+        cpus, reference_filename, pr_output, cram_file)
 
     cram = dx_exec.execute_command(cram_cmd)
     dx_exec.check_execution_syscode(cram)
