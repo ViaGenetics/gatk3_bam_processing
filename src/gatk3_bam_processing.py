@@ -285,17 +285,18 @@ def main(bam_files, sampleId, padding, reference, loglevel, regions_file=None,
     # have used the output field name for the filename for each output, but you
     # can change that behavior to suit your needs.
 
-    output_recalibrated_bam = dxpy.upload_local_file("output_recalibrated_bam")
-    output_recalibrated_cram = dxpy.upload_local_file("output_recalibrated_cram")
+    dx_upload_outputs_cmd = "dx-upload-all-outputs --parallel"
+    download_outputs = dx_exec.execute_command(dx_upload_outputs_cmd)
+    dx_exec.check_execution_syscode(download_outputs, "Upload outputs")
 
     # The following line fills in some basic dummy output and assumes
     # that you have created variables to represent your output with
     # the same name as your output fields.
 
-    output = {}
-    output["output_recalibrated_bam"] = dxpy.dxlink(output_recalibrated_bam)
-    output["output_recalibrated_cram"] = dxpy.dxlink(output_recalibrated_cram)
-
-    return output
+    upload_output_object = dx_utils.load_json_from_file("job_output.json")
+    return dx_utils.prepare_job_output(
+        dx_output_object=upload_output_object,
+        must_be_array=False
+    )
 
 dxpy.run()
